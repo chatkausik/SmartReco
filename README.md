@@ -136,7 +136,7 @@ manage products at `/admin/products`, or register a user, browse the catalog, an
 | Variable | Purpose |
 |---|---|
 | `MESH_API_KEY` | **Required.** Mesh key (`rsk_...`); all LLM/embedding calls go through it. |
-| `MESH_CHAT_MODEL` / `MESH_EMBEDDING_MODEL` | Model ids, e.g. `openai/gpt-4o-mini`, `openai/text-embedding-3-small`. |
+| `MESH_CHAT_MODEL` / `MESH_EMBEDDING_MODEL` | Model ids, e.g. `openai/gpt-5.1`, `openai/text-embedding-3-small`. |
 | `EVENT_THRESHOLD` / `MIN_COOLDOWN_MINUTES` / `MAX_STALENESS_HOURS` | Recommendation regeneration triggers. |
 | `DIGEST_HOUR` / `DIGEST_MINUTE` | When the daily digest runs (UTC). |
 | `DIGEST_DEV_INTERVAL_MINUTES` | Optional: fire the digest every N minutes to demo it without waiting. |

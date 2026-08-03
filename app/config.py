@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     # Mesh API — every LLM/embedding call in this app must go through Mesh.
     mesh_api_key: str = "rsk_placeholder"
     mesh_base_url: str = "https://api.meshapi.ai/v1"
-    mesh_chat_model: str = "openai/gpt-4o-mini"
+    mesh_chat_model: str = "openai/gpt-5.1"
     mesh_embedding_model: str = "openai/text-embedding-3-small"
 
     # App / sessions
