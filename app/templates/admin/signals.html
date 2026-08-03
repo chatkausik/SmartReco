@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Admin · Live Signals — SmartReco{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1 class="section-title" style="margin:0;">Live User Signals</h1>
+    <span class="streaming"><span class="dot"></span> streaming · admin</span>
+</div>
+<p class="muted small">Real-time behavioral signals for every registered user — updates automatically. Regular users only ever see their own signals.</p>
+
+<div id="admin-signals" class="admin-signals">
+    <p class="muted" id="admin-signals-empty">Loading…</p>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/admin_signals.js"></script>
+{% endblock %}

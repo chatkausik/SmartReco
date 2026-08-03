@@ -80,6 +80,21 @@ def get_recent_signal_events(
     return list(db.scalars(stmt).all())
 
 
+def get_recent_signal_events_all(db: Session, limit: int = 400) -> list[Event]:
+    """Recent signal events across ALL registered users, newest-first (admin dashboard only).
+
+    Excludes anonymous (user_id IS NULL) events. This is the ONLY read that spans users, and its
+    single caller is behind require_admin — regular users never reach a cross-user query.
+    """
+    stmt = (
+        select(Event)
+        .where(Event.event_type.in_(SIGNAL_EVENT_TYPES), Event.user_id.is_not(None))
+        .order_by(Event.created_at.desc())
+        .limit(limit)
+    )
+    return list(db.scalars(stmt).all())
+
+
 def user_ids_active_since(db: Session, since: datetime) -> list[int]:
     """Distinct non-anonymous user ids with at least one event since `since` (for the digest job)."""
     rows = db.execute(

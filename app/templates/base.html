@@ -32,7 +32,8 @@
         <a class="console-link" href="/mesh-console"><span class="spark">⚡</span> MeshAPI Console</a>
         {% if user %}
             <a class="nav-links" href="/recommendations" style="color:var(--muted)">For You</a>
-            {% if user.is_admin %}<a class="nav-links" href="/admin" style="color:var(--muted)">Admin</a>{% endif %}
+            {% if user.is_admin %}<a class="nav-links" href="/admin" style="color:var(--muted)">Admin</a>
+            <a class="nav-links" href="/admin/signals" style="color:var(--muted)">Live Signals</a>{% endif %}
             <form action="/logout" method="post" class="inline-form">
                 <button type="submit" class="link-button">Sign out</button>
             </form>

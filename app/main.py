@@ -8,7 +8,7 @@ from sqlalchemy import text
 
 from app.config import settings
 from app.db import create_all, engine
-from app.routers import admin_products, auth, events, mesh, pages, recommendations
+from app.routers import admin_products, admin_signals, auth, events, mesh, pages, recommendations
 from app.scheduler.jobs import create_scheduler
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -77,6 +77,7 @@ async def ensure_session_cookie(request: Request, call_next):
 app.include_router(auth.router)
 app.include_router(pages.router)
 app.include_router(admin_products.router)
+app.include_router(admin_signals.router)
 app.include_router(events.router)
 app.include_router(recommendations.router)
 app.include_router(mesh.router)

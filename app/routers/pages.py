@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.deps import get_current_user, get_db, require_admin
 from app.models.product import Product
 from app.models.user import User
-from app.services import event_service, product_service, recommendation_service, related
+from app.services import event_service, product_service, recommendation_service, related, signals
 
 router = APIRouter(tags=["pages"])
 templates = Jinja2Templates(directory="app/templates")
@@ -34,37 +34,15 @@ def _categories(db: Session) -> list[str]:
 def _recent_signals(db: Session, request: Request, user: User | None, limit: int = 10) -> list[dict]:
     """The last interaction events as Your-Signal chips {k, v}, newest-first.
 
-    Works for logged-in users (by user_id) and anonymous visitors (by the sr_sid session
-    cookie), so the panel reflects the user's real recent clicks/views/searches/dwell.
+    Strictly scoped to the current visitor: a logged-in user's chips come from THEIR user_id
+    only (never another user's), and anonymous visitors are scoped to their sr_sid session
+    cookie. get_recent_signal_events enforces this — user_id wins and is never mixed across users.
     """
     sid = request.cookies.get("sr_sid")
     events = event_service.get_recent_signal_events(
         db, user_id=(user.id if user else None), session_id=sid, limit=limit * 2
     )
-    product_ids = {e.product_id for e in events if e.product_id}
-    titles = {}
-    if product_ids:
-        titles = {p.id: p.title for p in db.query(Product).filter(Product.id.in_(product_ids)).all()}
-    chips: list[dict] = []
-    for e in events:  # newest-first
-        p = e.payload or {}
-        title = titles.get(e.product_id)
-        if e.event_type == "product_view":
-            chip = {"k": "Viewed", "v": p.get("title") or title or f"course #{e.product_id}"}
-        elif e.event_type == "click" and p.get("label") == "add_to_cart":
-            chip = {"k": "Added to cart", "v": p.get("title") or title or "a course"}
-        elif e.event_type == "click" and p.get("label") == "remove_from_cart":
-            chip = {"k": "Removed from cart", "v": p.get("title") or title or "a course"}
-        elif e.event_type == "search" and p.get("query") and not p.get("partial"):
-            chip = {"k": "Searched", "v": f"“{p['query']}”"}
-        else:
-            continue  # skip generic card clicks, dwell, page views
-        if chips and chips[-1] == chip:  # skip consecutive duplicates
-            continue
-        chips.append(chip)
-        if len(chips) >= limit:
-            break
-    return chips
+    return signals.events_to_chips(events, signals.titles_for(db, events), limit=limit)
 
 
 @router.get("/")

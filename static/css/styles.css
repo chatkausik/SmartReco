@@ -197,6 +197,14 @@ a { color: inherit; text-decoration: none; }
 .agent-explain .ranked li { display: flex; align-items: center; gap: 9px; font-size: .92rem; }
 .agent-explain .ranked .rank { font-family: var(--mono); font-size: .72rem; color: var(--muted); border: 1px solid var(--border); border-radius: 6px; padding: 1px 6px; }
 
+/* ===== admin live signals ===== */
+.admin-signals { display: grid; gap: 12px; margin-top: 18px; }
+.signal-user-card { border: 1px solid var(--border); border-radius: 12px; background: var(--bg-2); padding: 14px 16px; }
+.signal-user-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; }
+.signal-user-email { font-weight: 600; }
+.role-tag { font-family: var(--mono); font-size: .66rem; text-transform: uppercase; color: var(--accent-2); border: 1px solid var(--border); border-radius: 6px; padding: 1px 6px; margin-left: 6px; }
+.signal-user-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
 /* ===== category chips ===== */
 .section-title { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 18px; }
 .cat-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 26px; }
