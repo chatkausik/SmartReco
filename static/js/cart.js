@@ -39,9 +39,23 @@
         return "linear-gradient(150deg, hsl(" + h + " 72% 63%), hsl(" + ((h + 34) % 360) + " 64% 47%))";
     }
     function removeItem(id) {
-        save(load().filter(function (it) { return String(it.id) !== String(id); }));
+        var removed = null;
+        var kept = load().filter(function (it) {
+            if (String(it.id) === String(id)) { removed = it; return false; }
+            return true;
+        });
+        save(kept);
         updateBadge();
         renderCartPage();
+        // Emit a behavioral signal so removal shows in Your Signal (live + server seed) and is
+        // tracked like add-to-cart. tracker.js batches it to /api/events and dispatches nc:signal.
+        if (removed && window.SmartRecoTracker) {
+            window.SmartRecoTracker.track(
+                "click",
+                { label: "remove_from_cart", title: removed.title },
+                parseInt(removed.id, 10) || null
+            );
+        }
     }
 
     // Add-to-cart buttons (delegated so it works no matter when they render).

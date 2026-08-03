@@ -36,4 +36,20 @@
     </div>
     {% endif %}
 </section>
+
+{% if not query and rec and rec.narrative %}
+<section id="for-you" style="margin-top: 56px;">
+    <h2 class="section-title">Recommended for you</h2>
+    <div class="agent-reco" style="max-width:760px;">
+        <div class="label">✦ AGENT · RECOMMENDATION</div>
+        <p>{{ rec.narrative }}</p>
+        <a class="muted small mono" href="/recommendations" style="display:inline-block; margin-top:10px;">See how the agent chose these →</a>
+    </div>
+    {% if rec_products %}
+    <div class="grid" style="margin-top:24px;">
+        {% for p in rec_products %}{{ ui.course_card(p) }}{% endfor %}
+    </div>
+    {% endif %}
+</section>
+{% endif %}
 {% endblock %}

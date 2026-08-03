@@ -97,6 +97,8 @@
             if (!p.partial && p.query) addChip("Searched", "“" + p.query + "”");
         } else if (ev.event_type === "click" && p.label === "add_to_cart") {
             addChip("Added to cart", p.title || "a course");
+        } else if (ev.event_type === "click" && p.label === "remove_from_cart") {
+            addChip("Removed from cart", p.title || "a course");
         }
     });
 

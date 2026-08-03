@@ -52,7 +52,9 @@ def _recent_signals(db: Session, request: Request, user: User | None, limit: int
         if e.event_type == "product_view":
             chip = {"k": "Viewed", "v": p.get("title") or title or f"course #{e.product_id}"}
         elif e.event_type == "click" and p.get("label") == "add_to_cart":
-            chip = {"k": "Added to cart", "v": title or "a course"}
+            chip = {"k": "Added to cart", "v": p.get("title") or title or "a course"}
+        elif e.event_type == "click" and p.get("label") == "remove_from_cart":
+            chip = {"k": "Removed from cart", "v": p.get("title") or title or "a course"}
         elif e.event_type == "search" and p.get("query") and not p.get("partial"):
             chip = {"k": "Searched", "v": f"“{p['query']}”"}
         else:
@@ -68,11 +70,18 @@ def _recent_signals(db: Session, request: Request, user: User | None, limit: int
 @router.get("/")
 def home(request: Request, user: User | None = Depends(get_current_user), db: Session = Depends(get_db)):
     products = product_service.list_products(db)
+    # Personalized picks at the foot of the landing page for logged-in users. Gated/cached by the
+    # same trigger logic as /recommendations — usually a plain SQL read, no LLM call on each load.
+    rec = rec_products = None
+    if user is not None:
+        rec = recommendation_service.get_or_generate_recommendation(db, user)
+        rec_products = recommendation_service.get_recommended_products(db, rec)
     return templates.TemplateResponse(
         request,
         "index.html",
         {"user": user, "products": products, "categories": _categories(db),
-         "recent_signals": _recent_signals(db, request, user)},
+         "recent_signals": _recent_signals(db, request, user),
+         "rec": rec, "rec_products": rec_products},
     )
 
 
