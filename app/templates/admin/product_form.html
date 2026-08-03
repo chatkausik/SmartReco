@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ "Edit" if product else "New" }} product — SmartReco{% endblock %}
+{% block content %}
+<h1>{{ "Edit" if product else "New" }} product</h1>
+<form method="post" action="{{ action }}" class="form form-wide">
+    <label>Title
+        <input type="text" name="title" required value="{{ product.title if product else '' }}">
+    </label>
+    <label>Category
+        <input type="text" name="category" required value="{{ product.category if product else '' }}">
+    </label>
+    <label>Price (USD)
+        <input type="number" name="price" step="0.01" min="0" value="{{ '%.2f'|format(product.price) if product else '0.00' }}">
+    </label>
+    <label>Level
+        <input type="text" name="level" placeholder="beginner / intermediate / advanced"
+               value="{{ product.level or '' if product else '' }}">
+    </label>
+    <label>Description
+        <textarea name="description" rows="6">{{ product.description if product else '' }}</textarea>
+    </label>
+    {% if product %}
+    <label class="checkbox">
+        <input type="checkbox" name="is_active" value="true" {{ 'checked' if product.is_active }}> Active
+    </label>
+    {% endif %}
+    <div class="form-actions">
+        <button type="submit">{{ "Save changes" if product else "Create product" }}</button>
+        <a href="/admin/products" class="button-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}

@@ -65,6 +65,11 @@ db.sqlite3-journal
 instance/
 .webassets-cache
 
+# SmartReco: local vector store + sqlite artifacts
+chroma_data/
+smartreco.db
+smartreco.db-journal
+
 # Scrapy stuff:
 .scrapy
 

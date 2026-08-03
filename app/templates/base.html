@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SmartReco{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body{% block body_attrs %}{% endblock %}>
+    <header class="site-header">
+        <a class="brand" href="/">SmartReco</a>
+        <nav>
+            <a href="/">Catalog</a>
+            {% if user %}
+                <a href="/recommendations">For You</a>
+                {% if user.is_admin %}<a href="/admin">Admin</a>{% endif %}
+                <form action="/logout" method="post" class="inline-form">
+                    <button type="submit" class="link-button">Logout ({{ user.email }})</button>
+                </form>
+            {% else %}
+                <a href="/login">Login</a>
+                <a href="/register">Register</a>
+            {% endif %}
+        </nav>
+    </header>
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+    <script src="/static/js/tracker.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

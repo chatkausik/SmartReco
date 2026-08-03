@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Catalog — SmartReco{% endblock %}
+{% block content %}
+<h1>Course Catalog</h1>
+
+<form method="get" action="/products" class="search-bar" id="search-form">
+    <input type="search" name="q" placeholder="Search courses…" aria-label="Search courses">
+    <button type="submit">Search</button>
+</form>
+
+{% if not products %}
+<p class="muted">No courses yet.</p>
+{% else %}
+<div class="grid">
+    {% for p in products %}
+    <a class="card" href="/products/{{ p.id }}" data-track-click data-product-id="{{ p.id }}">
+        <span class="card-category">{{ p.category }}</span>
+        <h3>{{ p.title }}</h3>
+        <p class="card-desc">{{ p.description[:120] }}{% if p.description|length > 120 %}…{% endif %}</p>
+        <div class="card-foot">
+            <span class="price">${{ "%.2f"|format(p.price) }}</span>
+            {% if p.level %}<span class="level">{{ p.level }}</span>{% endif %}
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

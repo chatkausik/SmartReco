@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}For You — SmartReco{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1>For You</h1>
+    <form action="/recommendations/refresh" method="post" class="inline-form">
+        <button type="submit" class="button-secondary">↻ Refresh</button>
+    </form>
+</div>
+
+{% if rec and rec.narrative %}
+<div class="reco-narrative">
+    <p>{{ rec.narrative }}</p>
+    {% if rec.generated_at %}<span class="muted small">Updated {{ rec.generated_at.strftime("%b %d, %H:%M UTC") }}</span>{% endif %}
+</div>
+{% else %}
+<p class="muted">Browse a few courses and your personalized picks will appear here.</p>
+{% endif %}
+
+{% if products %}
+<div class="grid">
+    {% for p in products %}
+    <a class="card" href="/products/{{ p.id }}" data-track-click data-track-label="reco" data-product-id="{{ p.id }}">
+        <span class="card-category">{{ p.category }}</span>
+        <h3>{{ p.title }}</h3>
+        <p class="card-desc">{{ p.description[:120] }}{% if p.description|length > 120 %}…{% endif %}</p>
+        <div class="card-foot">
+            <span class="price">${{ "%.2f"|format(p.price) }}</span>
+            {% if p.level %}<span class="level">{{ p.level }}</span>{% endif %}
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

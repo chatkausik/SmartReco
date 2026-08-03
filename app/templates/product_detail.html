@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ product.title }} — SmartReco{% endblock %}
+{% block body_attrs %} data-product-id="{{ product.id }}"{% endblock %}
+{% block content %}
+<a href="/" class="muted">← Back to catalog</a>
+<div class="detail">
+    <span class="card-category">{{ product.category }}</span>
+    <h1>{{ product.title }}</h1>
+    <div class="detail-meta">
+        <span class="price">${{ "%.2f"|format(product.price) }}</span>
+        {% if product.level %}<span class="level">{{ product.level }}</span>{% endif %}
+    </div>
+    <p class="detail-desc">{{ product.description }}</p>
+    <button class="button" data-track-click data-track-label="enroll" data-product-id="{{ product.id }}">
+        Enroll now
+    </button>
+</div>
+{% endblock %}
