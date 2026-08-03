@@ -5,9 +5,8 @@ from __future__ import annotations
 
 import logging
 
-from app.agent.llm import get_embeddings
 from app.agent.state import AgentState
-from app.services import vector_store
+from app.services import mesh_client, vector_store
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +29,7 @@ def retrieve(state: AgentState) -> AgentState:
     query = state.get("retrieval_query") or "technology courses"
     filters = state.get("filters", {})
     try:
-        embedding = get_embeddings().embed_query(query)
+        embedding = mesh_client.embed_text(query, purpose="agent · retrieve query")
         candidates = vector_store.query(embedding, n_results=N_RESULTS, where=_build_where(filters))
         # Safety net: if a category/price filter over-narrowed to nothing, retry unfiltered
         # (excluding inactive only) so we always ground on real catalog items.

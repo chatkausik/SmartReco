@@ -8,10 +8,12 @@ this thin wrapper over the raw openai SDK.
 from __future__ import annotations
 
 import logging
+import time
 
 from openai import OpenAI
 
 from app.config import settings
+from app.services import mesh_log
 
 logger = logging.getLogger(__name__)
 
@@ -25,14 +27,23 @@ def get_client() -> OpenAI:
     return _client
 
 
-def embed_texts(texts: list[str]) -> list[list[float]]:
+def embed_texts(texts: list[str], purpose: str = "embedding") -> list[list[float]]:
     """Embed a batch of texts through Mesh. Raises on failure (callers decide how to handle)."""
     if not texts:
         return []
-    resp = get_client().embeddings.create(model=settings.mesh_embedding_model, input=texts)
+    started = time.time()
+    try:
+        resp = get_client().embeddings.create(model=settings.mesh_embedding_model, input=texts)
+    except Exception:
+        mesh_log.record("embedding", settings.mesh_embedding_model, purpose,
+                        latency_ms=(time.time() - started) * 1000, status="error")
+        raise
+    tokens = getattr(getattr(resp, "usage", None), "total_tokens", None)
+    mesh_log.record("embedding", settings.mesh_embedding_model, f"{purpose} ×{len(texts)}",
+                    latency_ms=(time.time() - started) * 1000, tokens=tokens)
     # Preserve input order.
     return [item.embedding for item in sorted(resp.data, key=lambda d: d.index)]
 
 
-def embed_text(text: str) -> list[float]:
-    return embed_texts([text])[0]
+def embed_text(text: str, purpose: str = "embedding") -> list[float]:
+    return embed_texts([text], purpose=purpose)[0]

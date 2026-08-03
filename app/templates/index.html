@@ -1,28 +1,39 @@
 {% extends "base.html" %}
-{% block title %}Catalog — SmartReco{% endblock %}
+{% import "_macros.html" as ui %}
+{% block title %}SmartReco — behavioral AI recommendations{% endblock %}
 {% block content %}
-<h1>Course Catalog</h1>
 
-<form method="get" action="/products" class="search-bar" id="search-form">
-    <input type="search" name="q" placeholder="Search courses…" aria-label="Search courses">
-    <button type="submit">Search</button>
-</form>
-
-{% if not products %}
-<p class="muted">No courses yet.</p>
-{% else %}
-<div class="grid">
-    {% for p in products %}
-    <a class="card" href="/products/{{ p.id }}" data-track-click data-product-id="{{ p.id }}">
-        <span class="card-category">{{ p.category }}</span>
-        <h3>{{ p.title }}</h3>
-        <p class="card-desc">{{ p.description[:120] }}{% if p.description|length > 120 %}…{% endif %}</p>
-        <div class="card-foot">
-            <span class="price">${{ "%.2f"|format(p.price) }}</span>
-            {% if p.level %}<span class="level">{{ p.level }}</span>{% endif %}
+{% if not query %}
+<section class="hero">
+    <div>
+        <span class="eyebrow"><span class="dot"></span> agent live · reading your signal</span>
+        <h1>Course recommendations that <span class="accent">think</span> — grounded in how you actually browse.</h1>
+        <p class="lede">SmartReco tracks every meaningful action you take, reasons over your interests with a retrieval-grounded AI agent, and surfaces the courses that fit your journey — each with a persuasive why, refreshed as your behavior evolves.</p>
+        <div class="hero-cta">
+            <a class="btn btn-lg" href="#catalog">Explore the catalog →</a>
+            <a class="btn btn-ghost btn-lg" href="/mesh-console">Peek inside the engine</a>
         </div>
-    </a>
-    {% endfor %}
-</div>
+    </div>
+    {{ ui.signal_panel(recent=recent_signals) }}
+</section>
 {% endif %}
+
+<section id="catalog" style="margin-top: 48px;">
+    <h2 class="section-title">{% if query %}Results for “{{ query }}”{% else %}Browse by category{% endif %}</h2>
+    {% if not query %}
+    <div class="cat-row">
+        {% for c in categories %}
+        <a class="cat-chip" href="/products?q={{ c|urlencode }}">{{ c }}</a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if not products %}
+    <p class="muted">No courses found{% if query %} for “{{ query }}”{% endif %}.</p>
+    {% else %}
+    <div class="grid">
+        {% for p in products %}{{ ui.course_card(p) }}{% endfor %}
+    </div>
+    {% endif %}
+</section>
 {% endblock %}

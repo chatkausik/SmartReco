@@ -26,13 +26,16 @@
     }
 
     function track(eventType, payload, productId) {
-        queue.push({
+        var ev = {
             event_type: eventType,
             product_id: productId != null ? productId : null,
             payload: payload || {},
             session_id: sessionId,
             client_ts: new Date().toISOString()
-        });
+        };
+        queue.push(ev);
+        // Real-time pub/sub for the "Your Signal" panel — decoupled from the network batching below.
+        try { window.dispatchEvent(new CustomEvent("nc:signal", { detail: ev })); } catch (e) { /* ignore */ }
         if (queue.length >= BATCH_SIZE) {
             flush(false);
         } else {
@@ -91,8 +94,10 @@
         var el = ev.target.closest ? ev.target.closest("[data-track-click]") : null;
         if (!el) return;
         var pid = el.getAttribute("data-product-id");
-        track("click", { label: el.getAttribute("data-track-label") || el.textContent.trim().slice(0, 60) },
-            pid ? parseInt(pid, 10) : null);
+        var title = el.getAttribute("data-title") || el.getAttribute("data-signal-title");
+        var payload = { label: el.getAttribute("data-track-label") || el.textContent.trim().slice(0, 60) };
+        if (title) payload.title = title;
+        track("click", payload, pid ? parseInt(pid, 10) : null);
     }, true);
 
     // Search: debounced on input, plus an immediate track on submit.

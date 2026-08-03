@@ -10,6 +10,9 @@ and (bonus) delivering a daily digest email.
 
 All LLM and embedding calls route through **Mesh API** (an OpenAI-compatible gateway).
 
+> **🔗 Live demo:** _add your deployed URL here_ · **🎬 Demo video:** _add your video link here_
+> _(both optional, reviewed for finalists — see [DEPLOY.md](DEPLOY.md))_
+
 ---
 
 ## What's implemented
@@ -28,6 +31,19 @@ All LLM and embedding calls route through **Mesh API** (an OpenAI-compatible gat
   (RAG). Recommendations are stored and refreshed via **smart triggering**: not on every
   event, but gated by an event-count threshold + cooldown, with a max-staleness backstop and
   a served cache in between (no redundant LLM calls).
+
+**Transparency features (proof nothing is stubbed)**
+- **MeshAPI Console** (`/mesh-console`) — a live in-app view of every real Mesh call the app
+  makes: chat **and** embedding requests, each with the model id, token count, latency, and the
+  agent node that fired it. Open it after generating a recommendation to watch the actual
+  `analyze_activity`/`rerank`/`generate_copy` LLM calls and the embedding calls stream in.
+- **Agent explainability panel** — the For You page has a "How the agent chose these" trace
+  showing the *real* reasoning behind the picks: the interest summary, the retrieval query, the
+  metadata filters applied, the retrieval **grade** and how many refine loops ran, and the
+  reranked shortlist with per-candidate similarity scores. Rendered from the `retrieval_debug`
+  audit trail stored on every recommendation — undeniable evidence the RAG pipeline is genuine.
+- **Your Signal** panel — real-time chips reflecting the user's live clicks / views / searches
+  as they browse (persisted across page loads), so the behavioral tracking is visible in action.
 
 **All four bonus features**
 - ⭐ **Structured agent framework (LangGraph)** — an explicit reasoning graph:
@@ -132,10 +148,13 @@ manage products at `/admin/products`, or register a user, browse the catalog, an
 ## Trying the behavior loop
 1. Register a user and browse/search several courses in one category (e.g. the Agentic AI ones).
 2. Open **For You** — the agent analyzes your activity, retrieves grounded courses, and writes
-   a persuasive narrative referencing your interests.
-3. Reloading won't re-call the LLM until the trigger thresholds are met (efficiency) — use the
+   a persuasive narrative referencing your interests. Expand **"How the agent chose these"** to
+   see the live reasoning trace (query, filters, grade/refine loop, rerank scores).
+3. Open the **MeshAPI Console** (top nav) to see the actual Mesh chat + embedding calls that
+   just ran, with token counts, latency, and the agent node behind each one.
+4. Reloading won't re-call the LLM until the trigger thresholds are met (efficiency) — use the
    **Refresh** button to force a new run.
-4. To see the digest without waiting for 3pm, set `DIGEST_DEV_INTERVAL_MINUTES=2` (or run the
+5. To see the digest without waiting for 3pm, set `DIGEST_DEV_INTERVAL_MINUTES=2` (or run the
    job directly): `python -c "from app.scheduler.jobs import daily_digest_job; daily_digest_job()"`.
 
 ## HTTP endpoints
@@ -145,8 +164,9 @@ manage products at `/admin/products`, or register a user, browse the catalog, an
 | GET | `/products?q=` | — | Search catalog (title/description/category) |
 | GET | `/products/{id}` | — | Course detail (fires a `product_view`) |
 | GET/POST | `/register`, `/login`, `/logout` | — | Auth |
-| GET | `/recommendations` | user | Personalized picks (lazily regenerated, gated) |
+| GET | `/recommendations` | user | Personalized picks + agent explainability trace (lazily regenerated, gated) |
 | POST | `/recommendations/refresh` | user | Force a fresh agent run |
+| GET | `/mesh-console` | — | Live log of real Mesh chat + embedding calls (model/tokens/latency/node) |
 | GET | `/admin/products` | admin | Product list |
 | GET/POST | `/admin/products/new`, `/admin/products/{id}/edit`, `/admin/products/{id}/delete` | admin | CRUD (dual-write) |
 | POST | `/api/events` | optional | Batched behavioral event ingestion (204) |
@@ -168,11 +188,11 @@ app/
   config.py db.py security.py deps.py
   models/            user · product · event · recommendation
   schemas/           auth · product · event
-  routers/           auth · pages · admin_products · events · recommendations
+  routers/           auth · pages · admin_products · events · recommendations · mesh
   services/          product_service · event_service · vector_store · mesh_client
-                     recommendation_service · email_service
-  agent/             graph · state · llm · tracing · nodes/{analyze_activity,retrieve,
-                     grade_retrieval,refine_query,rerank,generate_copy}
+                     recommendation_service · email_service · related · mesh_log
+  agent/             graph · state · llm · tracing · mesh_callback · nodes/{analyze_activity,
+                     retrieve,grade_retrieval,refine_query,rerank,generate_copy}
   scheduler/jobs.py  daily_digest_job · reconcile_job
   templates/         base · auth · catalog · admin/ · emails/digest_email
 static/js/tracker.js batched/throttled/sendBeacon tracking
@@ -181,7 +201,7 @@ tests/               dual-write · events · trigger · agent-graph · auth · d
 ```
 
 ## Continuous integration / submission
-The official checks live at `.github/workflows/smartreco-checks.yml`. For them to run, add two
+The official checks live at `.github/workflows/smartreco-build-challenge-2026-checks.yml`. For them to run, add two
 repository secrets (Settings → Secrets and variables → Actions):
 - `MESH_API_KEY` — your Mesh key.
 - `SUBMISSION_TOKEN` — from your submission dashboard.

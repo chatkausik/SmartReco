@@ -36,6 +36,14 @@ async def ingest_events(
         # Bad payloads are dropped silently — telemetry must never surface errors to the UX.
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
-    events = [e.model_dump() for e in batch.events]
+    # Tie events to the server-managed session cookie so the Your Signal panel can query them
+    # back on a page load (works for anonymous visitors too). Falls back to the client id.
+    sr_sid = request.cookies.get("sr_sid")
+    events = []
+    for e in batch.events:
+        d = e.model_dump()
+        if sr_sid:
+            d["session_id"] = sr_sid
+        events.append(d)
     event_service.bulk_insert_events(db, user.id if user else None, events)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

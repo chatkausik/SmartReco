@@ -41,6 +41,8 @@ def create_product(db: Session, data: dict) -> Product:
         category=data["category"],
         price=data.get("price", 0),
         level=data.get("level"),
+        rating=data.get("rating"),
+        students=data.get("students"),
         is_active=data.get("is_active", True),
         vector_sync_status="pending",
     )
@@ -55,7 +57,7 @@ def update_product(db: Session, product_id: int, data: dict) -> Product | None:
     product = db.get(Product, product_id)
     if product is None:
         return None
-    for field in ("title", "description", "category", "price", "level", "is_active"):
+    for field in ("title", "description", "category", "price", "level", "rating", "students", "is_active"):
         if field in data and data[field] is not None:
             setattr(product, field, data[field])
     product.vector_sync_status = "pending"

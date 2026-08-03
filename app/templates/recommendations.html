@@ -1,35 +1,71 @@
 {% extends "base.html" %}
+{% import "_macros.html" as ui %}
 {% block title %}For You — SmartReco{% endblock %}
 {% block content %}
 <div class="page-head">
-    <h1>For You</h1>
+    <h1 class="section-title" style="margin:0;">For You</h1>
     <form action="/recommendations/refresh" method="post" class="inline-form">
-        <button type="submit" class="button-secondary">↻ Refresh</button>
+        <button type="submit" class="btn btn-ghost">↻ Refresh</button>
     </form>
 </div>
 
 {% if rec and rec.narrative %}
-<div class="reco-narrative">
+<div class="agent-reco" style="max-width:760px;">
+    <div class="label">✦ AGENT · RECOMMENDATION</div>
     <p>{{ rec.narrative }}</p>
-    {% if rec.generated_at %}<span class="muted small">Updated {{ rec.generated_at.strftime("%b %d, %H:%M UTC") }}</span>{% endif %}
+    {% if rec.generated_at %}<span class="muted small mono">updated {{ rec.generated_at.strftime("%b %d · %H:%M UTC") }}</span>{% endif %}
 </div>
+
+{% if explain %}
+<details class="agent-explain" style="max-width:760px;">
+    <summary><span class="mono">⚙ How the agent chose these</span> <span class="muted small">— live RAG reasoning trace</span></summary>
+    <ol class="pipeline">
+        <li>
+            <span class="node mono">analyze_activity</span>
+            <div class="node-body">{{ explain.interest_summary or "—" }}</div>
+        </li>
+        <li>
+            <span class="node mono">retrieve</span>
+            <div class="node-body">
+                query <code>“{{ explain.retrieval_query }}”</code> → embedded via Mesh, semantic search over Chroma
+                {% if explain.filters %}
+                    <div class="filters">
+                        {% for k, v in explain.filters.items() %}<span class="chip"><span class="k">{{ k }}</span><span class="v">{{ v }}</span></span>{% endfor %}
+                    </div>
+                {% else %}<span class="muted small">no metadata filter applied</span>{% endif %}
+                <span class="muted small">· {{ explain.candidate_count }} candidate{{ "s" if explain.candidate_count != 1 }} returned</span>
+            </div>
+        </li>
+        <li>
+            <span class="node mono">grade_retrieval</span>
+            <div class="node-body">
+                quality: <strong class="grade grade-{{ explain.grade or 'na' }}">{{ explain.grade or "n/a" }}</strong>
+                {% if explain.refine_count %}· self-corrected with {{ explain.refine_count }} query refinement{{ "s" if explain.refine_count != 1 }}{% else %}· no refinement needed{% endif %}
+            </div>
+        </li>
+        <li>
+            <span class="node mono">rerank → generate_copy</span>
+            <div class="node-body">
+                LLM reranked the candidates for this learner; final shortlist:
+                <ul class="ranked">
+                    {% for r in explain.reranked %}
+                    <li><span class="rank">{{ loop.index }}</span> {{ r.title }}
+                        {% if r.similarity is not none %}<span class="muted small mono">sim {{ "%.3f"|format(r.similarity) }}</span>{% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </li>
+    </ol>
+</details>
+{% endif %}
 {% else %}
 <p class="muted">Browse a few courses and your personalized picks will appear here.</p>
 {% endif %}
 
 {% if products %}
-<div class="grid">
-    {% for p in products %}
-    <a class="card" href="/products/{{ p.id }}" data-track-click data-track-label="reco" data-product-id="{{ p.id }}">
-        <span class="card-category">{{ p.category }}</span>
-        <h3>{{ p.title }}</h3>
-        <p class="card-desc">{{ p.description[:120] }}{% if p.description|length > 120 %}…{% endif %}</p>
-        <div class="card-foot">
-            <span class="price">${{ "%.2f"|format(p.price) }}</span>
-            {% if p.level %}<span class="level">{{ p.level }}</span>{% endif %}
-        </div>
-    </a>
-    {% endfor %}
+<div class="grid" style="margin-top:26px;">
+    {% for p in products %}{{ ui.course_card(p) }}{% endfor %}
 </div>
 {% endif %}
 {% endblock %}

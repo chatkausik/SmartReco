@@ -60,7 +60,7 @@ def test_good_path_grounds_recommendations(monkeypatch):
     # Mock retrieval: strong-similarity candidates so the heuristic grades "good" (no judge call).
     import app.agent.nodes.retrieve as retrieve_mod
 
-    monkeypatch.setattr(retrieve_mod, "get_embeddings", lambda: _FakeEmbeddings())
+    monkeypatch.setattr(retrieve_mod.mesh_client, "embed_text", lambda *a, **k: [0.1] * 32)
     canned = [
         {"product_id": 1, "document": "d1", "metadata": {"title": "Agents", "category": "Agentic AI", "price": 99, "level": "advanced"}, "similarity": 0.7},
         {"product_id": 2, "document": "d2", "metadata": {"title": "RAG", "category": "Agentic AI", "price": 79, "level": "intermediate"}, "similarity": 0.6},

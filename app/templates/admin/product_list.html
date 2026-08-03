@@ -2,13 +2,13 @@
 {% block title %}Admin · Products — SmartReco{% endblock %}
 {% block content %}
 <div class="page-head">
-    <h1>Products</h1>
-    <a class="button" href="/admin/products/new">+ New product</a>
+    <h1 class="section-title" style="margin:0;">Products</h1>
+    <a class="btn" href="/admin/products/new">+ New product</a>
 </div>
-
 {% if not products %}
 <p class="muted">No products yet. Create one, or run <code>python -m scripts.seed_products</code>.</p>
 {% else %}
+<div class="console-table-wrap" style="margin-top:16px;">
 <table class="table">
     <thead>
         <tr><th>ID</th><th>Title</th><th>Category</th><th>Price</th><th>Level</th><th>Active</th><th>Vector</th><th></th></tr>
@@ -36,5 +36,6 @@
     {% endfor %}
     </tbody>
 </table>
+</div>
 {% endif %}
 {% endblock %}

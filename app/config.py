@@ -24,6 +24,12 @@ class Settings(BaseSettings):
     bootstrap_admin_email: str = "admin@example.com"
     bootstrap_admin_password: str = "change-me-admin-password"
 
+    # On a fresh cloud deploy the filesystem is empty (and ephemeral). When true, startup
+    # bootstraps the admin + seeds the catalog if the products table is empty, so the app comes
+    # up populated without a manual shell step. Off by default so local dev never surprises you
+    # with Mesh embedding calls at boot. Requires a funded MESH_API_KEY (seeding embeds via Mesh).
+    auto_seed_on_startup: bool = False
+
     # Recommendation trigger thresholds — the "smart AI-call triggering" knobs.
     event_threshold: int = 15
     min_cooldown_minutes: int = 10

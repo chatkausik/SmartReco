@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}MeshAPI Console — SmartReco{% endblock %}
+{% block content %}
+<div class="console-hero">
+    <span class="spark">⚡</span>
+    <h1 class="section-title" style="margin:0;">MeshAPI Console</h1>
+</div>
+<p class="console-sub">
+    Every AI call SmartReco makes routes through <strong>Mesh</strong> at <code>{{ base_url }}</code> —
+    chat via <code>{{ chat_model }}</code>, embeddings via <code>{{ embedding_model }}</code>.
+    This is a live, unfaked feed of those calls: agent reasoning nodes and vector-store embeddings as they happen.
+    Browse a course or open <a href="/recommendations">For You</a> to see it fill.
+</p>
+
+<div class="stat-row" id="stat-row">
+    <div class="stat"><div class="n" id="s-total">0</div><div class="l">total calls</div></div>
+    <div class="stat"><div class="n" id="s-chat">0</div><div class="l">chat (agent)</div></div>
+    <div class="stat"><div class="n" id="s-emb">0</div><div class="l">embeddings</div></div>
+    <div class="stat"><div class="n" id="s-tokens">0</div><div class="l">total tokens</div></div>
+    <div class="stat"><div class="n" id="s-lat">—</div><div class="l">avg latency ms</div></div>
+</div>
+
+<div class="console-table-wrap">
+    <table class="table">
+        <thead>
+            <tr><th>Time</th><th>Kind</th><th>Model</th><th>Purpose</th><th>Tokens</th><th>Latency</th><th>Status</th></tr>
+        </thead>
+        <tbody id="console-body">
+            <tr><td colspan="7" class="console-empty">Waiting for Mesh calls… trigger the agent by opening a course or the For You page.</td></tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/mesh_console.js"></script>{% endblock %}

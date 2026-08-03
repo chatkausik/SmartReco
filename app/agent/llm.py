@@ -8,7 +8,10 @@ from functools import lru_cache
 
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
+from app.agent.mesh_callback import MeshLogCallback
 from app.config import settings
+
+_mesh_logger = MeshLogCallback()
 
 
 @lru_cache
@@ -18,6 +21,7 @@ def get_chat(temperature: float = 0.3) -> ChatOpenAI:
         api_key=settings.mesh_api_key,
         model=settings.mesh_chat_model,
         temperature=temperature,
+        callbacks=[_mesh_logger],  # records each call into the MeshAPI Console log
     )
 
 

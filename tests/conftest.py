@@ -32,7 +32,7 @@ import app.services.vector_store as vector_store  # noqa: E402
 from app.models.product import Product  # noqa: E402
 
 
-def _fake_embed_texts(texts):
+def _fake_embed_texts(texts, purpose=None, **_kwargs):
     # Deterministic 32-dim pseudo-embedding from the text hash — offline, order-preserving.
     out = []
     for t in texts:

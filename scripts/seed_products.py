@@ -16,58 +16,55 @@ from app.db import SessionLocal, create_all
 from app.models.product import Product
 from app.services import product_service
 
+# SmartReco catalog — AI/ML learning marketplace.
 SAMPLE_PRODUCTS = [
-    # Agentic AI / LLM engineering
-    {"title": "Building Agentic AI Systems with LangGraph", "category": "Agentic AI", "price": 129.0, "level": "advanced",
-     "description": "Design multi-step reasoning agents with LangGraph: nodes, conditional edges, retrieval loops, self-grading, and refinement. Build a production RAG agent end to end."},
-    {"title": "RAG in Production: Retrieval, Reranking, and Evaluation", "category": "Agentic AI", "price": 99.0, "level": "intermediate",
-     "description": "Move beyond naive top-k. Metadata filtering, cross-encoder reranking, chunking strategies, and how to evaluate retrieval quality with real metrics."},
-    {"title": "LLM App Engineering with the OpenAI SDK", "category": "Agentic AI", "price": 89.0, "level": "intermediate",
-     "description": "Structured outputs, tool calling, streaming, caching, and cost control for LLM-powered applications using the OpenAI-compatible API surface."},
-    {"title": "Vector Databases Deep Dive", "category": "Agentic AI", "price": 79.0, "level": "intermediate",
+    # Generative AI
+    {"title": "Building Production RAG Systems", "category": "Generative AI", "price": 189.0, "level": "intermediate", "rating": 4.8, "students": 3200,
+     "description": "Ship retrieval that actually holds up under real traffic. Chunking, hybrid search, reranking, evaluation, and guardrails for grounded, hallucination-resistant answers."},
+    {"title": "Prompt Engineering for Real Products", "category": "Generative AI", "price": 129.0, "level": "beginner", "rating": 4.6, "students": 5100,
+     "description": "Structured outputs, few-shot patterns, and evaluation loops that make LLM features reliable instead of a demo that breaks in production."},
+    {"title": "Fine-Tuning and Adapters in Practice", "category": "Generative AI", "price": 209.0, "level": "advanced", "rating": 4.7, "students": 1400,
+     "description": "LoRA, QLoRA, and instruction tuning end to end: data curation, training runs, evaluation, and deciding when fine-tuning beats prompting or RAG."},
+
+    # Agentic AI
+    {"title": "Agentic Workflows with LangGraph", "category": "Agentic AI", "price": 219.0, "level": "advanced", "rating": 4.9, "students": 2187,
+     "description": "Model agents as state machines, add tool use, memory and retries, and instrument every step so you can debug what your agent actually did."},
+    {"title": "Building Tool-Using AI Agents", "category": "Agentic AI", "price": 179.0, "level": "intermediate", "rating": 4.7, "students": 2600,
+     "description": "Function calling, planning loops, self-grading, and refinement. Build agents that decide when to retrieve, act, and stop — grounded in real data."},
+    {"title": "Multi-Agent Systems and Orchestration", "category": "Agentic AI", "price": 199.0, "level": "advanced", "rating": 4.6, "students": 980,
+     "description": "Coordinate multiple specialized agents: routing, shared memory, handoffs, and evaluation of collaborative workflows without the chaos."},
+
+    # MLOps
+    {"title": "MLOps for Real Teams", "category": "MLOps", "price": 179.0, "level": "intermediate", "rating": 4.7, "students": 1800,
+     "description": "The pipeline, review and rollout habits mature ML orgs share. Experiment tracking, model registries, CI/CD, and monitoring that catches drift."},
+    {"title": "Model Serving and Inference at Scale", "category": "MLOps", "price": 189.0, "level": "advanced", "rating": 4.5, "students": 1100,
+     "description": "Latency, batching, GPU utilization, and cost. Serve models that stay fast and cheap under load with autoscaling and observability."},
+    {"title": "ML Monitoring and Drift Detection", "category": "MLOps", "price": 149.0, "level": "intermediate", "rating": 4.6, "students": 1350,
+     "description": "Detect data and concept drift, wire up alerting, and build the feedback loops that keep production models honest over time."},
+
+    # Data Engineering
+    {"title": "Data Engineering for AI Pipelines", "category": "Data Engineering", "price": 169.0, "level": "intermediate", "rating": 4.6, "students": 2400,
+     "description": "Batch and streaming pipelines, orchestration, and warehouse modeling that feed reliable data into training and inference."},
+    {"title": "Vector Databases in Depth", "category": "Data Engineering", "price": 139.0, "level": "intermediate", "rating": 4.7, "students": 2900,
      "description": "How embeddings, ANN indexes (HNSW), and metadata filtering actually work. Hands-on with Chroma, Qdrant, and FAISS for semantic search."},
-    {"title": "Prompt Engineering for Reliable Agents", "category": "Agentic AI", "price": 59.0, "level": "beginner",
-     "description": "Practical prompting patterns for grounded, persuasive, and safe LLM output. Few-shot, structured extraction, and guardrails against hallucination."},
+    {"title": "Streaming Data with Kafka and Flink", "category": "Data Engineering", "price": 159.0, "level": "advanced", "rating": 4.4, "students": 860,
+     "description": "Real-time event pipelines: exactly-once semantics, windowing, and stateful processing for analytics and ML features."},
 
-    # Web / backend
-    {"title": "FastAPI from Zero to Production", "category": "Web Development", "price": 94.0, "level": "intermediate",
-     "description": "Build async Python APIs with FastAPI: dependency injection, auth, background tasks, SQLAlchemy, testing, and deployment."},
-    {"title": "Full-Stack Web Development Bootcamp", "category": "Web Development", "price": 149.0, "level": "beginner",
-     "description": "HTML, CSS, JavaScript, and a Python backend. Build and deploy real web applications from scratch with server-rendered templates."},
-    {"title": "Scalable Backend Systems Design", "category": "Web Development", "price": 119.0, "level": "advanced",
-     "description": "Caching, queues, batching, rate limiting, and non-blocking I/O. Architect backends that stay fast under load."},
-    {"title": "JavaScript for Modern Frontends", "category": "Web Development", "price": 69.0, "level": "beginner",
-     "description": "The JavaScript you need for interactive UIs: events, fetch, the DOM, debouncing, throttling, and the Beacon API for non-blocking telemetry."},
-
-    # Data / ML
-    {"title": "Machine Learning Foundations", "category": "Data Science", "price": 109.0, "level": "beginner",
-     "description": "Supervised and unsupervised learning, model evaluation, and the math intuition behind it. Hands-on with scikit-learn."},
-    {"title": "Deep Learning with PyTorch", "category": "Data Science", "price": 139.0, "level": "advanced",
-     "description": "Neural networks, backpropagation, CNNs, transformers, and training at scale using PyTorch."},
-    {"title": "Data Engineering Pipelines", "category": "Data Science", "price": 124.0, "level": "intermediate",
-     "description": "Batch and streaming pipelines, orchestration, and warehouse modeling. Move data reliably from source to insight."},
-    {"title": "Practical SQL for Analytics", "category": "Data Science", "price": 49.0, "level": "beginner",
-     "description": "Window functions, joins, indexing, and query optimization for analysts who need answers from real databases."},
-
-    # Cloud / DevOps
-    {"title": "Docker and Kubernetes in Practice", "category": "DevOps", "price": 114.0, "level": "intermediate",
-     "description": "Containerize applications, orchestrate them with Kubernetes, and ship with confidence. Health checks, scaling, and rollouts."},
-    {"title": "CI/CD with GitHub Actions", "category": "DevOps", "price": 64.0, "level": "beginner",
-     "description": "Automate testing and deployment with GitHub Actions workflows, secrets, and matrix builds."},
-    {"title": "Observability: Logs, Metrics, and Tracing", "category": "DevOps", "price": 84.0, "level": "intermediate",
+    # Cloud & DevOps
+    {"title": "Docker and Kubernetes for ML", "category": "Cloud & DevOps", "price": 149.0, "level": "intermediate", "rating": 4.6, "students": 3050,
+     "description": "Containerize models and services, orchestrate them on Kubernetes, and ship with health checks, scaling, and safe rollouts."},
+    {"title": "CI/CD Pipelines with GitHub Actions", "category": "Cloud & DevOps", "price": 99.0, "level": "beginner", "rating": 4.5, "students": 4200,
+     "description": "Automate testing and deployment with workflows, secrets, and matrix builds — the same setup that gates real production releases."},
+    {"title": "Observability: Logs, Metrics, Tracing", "category": "Cloud & DevOps", "price": 119.0, "level": "intermediate", "rating": 4.6, "students": 1700,
      "description": "Instrument systems for insight. Structured logging, metrics, and distributed tracing so you can debug what actually happened."},
 
-    # Product / design
-    {"title": "Product Analytics and Behavioral Tracking", "category": "Product", "price": 74.0, "level": "intermediate",
-     "description": "Design event schemas, track user behavior without slowing the UX, and turn activity data into product decisions."},
-    {"title": "UX Design Fundamentals", "category": "Design", "price": 59.0, "level": "beginner",
-     "description": "User research, wireframing, and interaction design principles for building interfaces people love."},
-
-    # Security
-    {"title": "Web Application Security Essentials", "category": "Security", "price": 99.0, "level": "intermediate",
-     "description": "Auth, sessions, password hashing, and the OWASP Top 10. Secure your web apps against common attacks."},
-    {"title": "Applied Cryptography Basics", "category": "Security", "price": 89.0, "level": "advanced",
-     "description": "Hashing, symmetric and asymmetric encryption, and signing. Understand the primitives behind secure systems."},
+    # Python for AI
+    {"title": "Python for AI Engineers", "category": "Python for AI", "price": 89.0, "level": "beginner", "rating": 4.7, "students": 6400,
+     "description": "The Python that AI work actually needs: async, typing, packaging, testing, and the data stack — written the way production teams write it."},
+    {"title": "Async Python and Concurrency", "category": "Python for AI", "price": 109.0, "level": "intermediate", "rating": 4.5, "students": 2100,
+     "description": "asyncio, tasks, and non-blocking I/O for fast APIs and data pipelines — with the pitfalls and patterns that trip people up."},
+    {"title": "Testing and Packaging Python Projects", "category": "Python for AI", "price": 79.0, "level": "beginner", "rating": 4.4, "students": 2750,
+     "description": "pytest, fixtures, mocking, and clean packaging so your AI code is reproducible, installable, and safe to change."},
 ]
 
 

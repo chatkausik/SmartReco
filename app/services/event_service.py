@@ -57,6 +57,29 @@ def get_recent_events_for_user(db: Session, user_id: int, limit: int = 50, days:
     return list(db.scalars(stmt).all())
 
 
+# Event types surfaced in the "Your Signal" panel: real user actions only — views, searches,
+# and clicks (incl. add-to-cart). Dwell/time-spent and page views are excluded as noise.
+SIGNAL_EVENT_TYPES = ("product_view", "search", "click")
+
+
+def get_recent_signal_events(
+    db: Session, user_id: int | None = None, session_id: str | None = None, limit: int = 14
+) -> list[Event]:
+    """Most recent interaction events (clicks/views/searches/dwell) for a user OR browser session.
+
+    Filters by type in SQL so page_view/time-only noise doesn't crowd out real interactions.
+    """
+    stmt = select(Event).where(Event.event_type.in_(SIGNAL_EVENT_TYPES))
+    if user_id is not None:
+        stmt = stmt.where(Event.user_id == user_id)
+    elif session_id:
+        stmt = stmt.where(Event.session_id == session_id)
+    else:
+        return []
+    stmt = stmt.order_by(Event.created_at.desc()).limit(limit)
+    return list(db.scalars(stmt).all())
+
+
 def user_ids_active_since(db: Session, since: datetime) -> list[int]:
     """Distinct non-anonymous user ids with at least one event since `since` (for the digest job)."""
     rows = db.execute(

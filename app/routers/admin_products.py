@@ -39,10 +39,13 @@ def create(
     category: str = Form(...),
     price: float = Form(0),
     level: str = Form(""),
+    rating: float | None = Form(None),
+    students: int | None = Form(None),
 ):
     product_service.create_product(
         db,
-        {"title": title, "description": description, "category": category, "price": price, "level": level or None},
+        {"title": title, "description": description, "category": category, "price": price,
+         "level": level or None, "rating": rating, "students": students},
     )
     return RedirectResponse(url="/admin/products", status_code=303)
 
@@ -72,6 +75,8 @@ def update(
     category: str = Form(...),
     price: float = Form(0),
     level: str = Form(""),
+    rating: float | None = Form(None),
+    students: int | None = Form(None),
     is_active: bool = Form(False),
 ):
     product_service.update_product(
@@ -83,6 +88,8 @@ def update(
             "category": category,
             "price": price,
             "level": level or None,
+            "rating": rating,
+            "students": students,
             "is_active": is_active,
         },
     )

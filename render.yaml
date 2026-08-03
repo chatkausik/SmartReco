@@ -1,0 +1,28 @@
+# One-click deploy config for Render (https://render.com). Point Render at this repo and it
+# reads this Blueprint. Set MESH_API_KEY in the dashboard (marked sync:false so it's a secret).
+#
+# Note: the default plan's disk is ephemeral — smartreco.db and chroma_data reset on each
+# deploy/restart. AUTO_SEED_ON_STARTUP re-seeds the catalog on boot so the app is always usable.
+# For durable data, attach a Render Persistent Disk mounted at /data and set
+# DATABASE_URL=sqlite:////data/smartreco.db and CHROMA_DIR=/data/chroma_data.
+services:
+  - type: web
+    name: smartreco
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: MESH_API_KEY
+        sync: false            # set this secret in the Render dashboard
+      - key: SECRET_KEY
+        generateValue: true    # random signed-cookie secret
+      - key: AUTO_SEED_ON_STARTUP
+        value: "true"
+      - key: BOOTSTRAP_ADMIN_EMAIL
+        sync: false
+      - key: BOOTSTRAP_ADMIN_PASSWORD
+        sync: false
+      - key: PYTHON_VERSION
+        value: "3.11"

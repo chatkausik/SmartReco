@@ -1,18 +1,63 @@
 {% extends "base.html" %}
+{% import "_macros.html" as ui %}
 {% block title %}{{ product.title }} — SmartReco{% endblock %}
 {% block body_attrs %} data-product-id="{{ product.id }}"{% endblock %}
 {% block content %}
-<a href="/" class="muted">← Back to catalog</a>
 <div class="detail">
-    <span class="card-category">{{ product.category }}</span>
-    <h1>{{ product.title }}</h1>
-    <div class="detail-meta">
-        <span class="price">${{ "%.2f"|format(product.price) }}</span>
-        {% if product.level %}<span class="level">{{ product.level }}</span>{% endif %}
+    <div>
+        <div class="detail-hero" style="background: linear-gradient(150deg, hsl({{ product.hue }} 72% 63%), hsl({{ (product.hue + 34) % 360 }} 64% 47%));">
+            <span class="cat-tag">{{ product.category }}</span>
+        </div>
+        <a class="crumb" href="/products?q={{ product.category|urlencode }}">{{ product.category }}</a>
+        <h1>{{ product.title }}</h1>
+        <p class="detail-lede">{{ product.description }}</p>
+        <div class="detail-meta">
+            {% if product.rating %}<span class="rating"><span class="star">★</span> {{ "%.1f"|format(product.rating) }}</span>{% endif %}
+            {% if product.students %}<span>{{ "{:,}".format(product.students) }} students</span>{% endif %}
+            {% if product.level %}<span>{{ product.level }}</span>{% endif %}
+        </div>
+
+        <div class="curriculum">
+            <h2 class="section-title">Curriculum</h2>
+            <ol>
+                {% for lesson in curriculum %}
+                <li>{{ lesson }} <span class="done">✓</span></li>
+                {% endfor %}
+            </ol>
+        </div>
     </div>
-    <p class="detail-desc">{{ product.description }}</p>
-    <button class="button" data-track-click data-track-label="enroll" data-product-id="{{ product.id }}">
-        Enroll now
-    </button>
+
+    <div class="side-stack">
+        <div class="buy-card">
+            <div class="label">One-time price</div>
+            <div class="big-price">${{ "%.0f"|format(product.price) }}</div>
+            <button type="button" class="btn btn-block" data-add-cart data-product-id="{{ product.id }}"
+                    data-title="{{ product.title }}" data-price="{{ '%.0f'|format(product.price) }}"
+                    data-category="{{ product.category }}" data-monogram="{{ product.monogram }}" data-hue="{{ product.hue }}"
+                    data-track-click data-track-label="add_to_cart">🛒 Add to cart</button>
+            <a class="btn btn-ghost btn-block" href="/cart">Go to cart</a>
+            <ul class="perks">
+                <li><span class="check">✓</span> Lifetime access</li>
+                <li><span class="check">✓</span> Downloadable code</li>
+                <li><span class="check">✓</span> Cohort office hours</li>
+            </ul>
+        </div>
+
+        {{ ui.signal_panel(seed_title=product.title, seed_category=product.category, recent=recent_signals) }}
+
+        <div class="agent-reco" id="agent-reco" {% if not agent_rec %}data-anon="1"{% endif %}>
+            <div class="label">✦ AGENT · RECOMMENDATION</div>
+            <p id="agent-reco-text">{% if agent_rec %}{{ agent_rec }}{% else %}Keep exploring — the agent is reading your signal and will tailor a path for you.{% endif %}</p>
+        </div>
+    </div>
 </div>
+
+{% if related %}
+<section class="also">
+    <h2 class="section-title">Students who explored this also looked at</h2>
+    <div class="grid related">
+        {% for p in related %}{{ ui.course_card(p) }}{% endfor %}
+    </div>
+</section>
+{% endif %}
 {% endblock %}

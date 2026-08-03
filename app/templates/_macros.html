@@ -1,0 +1,47 @@
+{% macro thumb(p) %}
+<div class="thumb" style="background: linear-gradient(150deg, hsl({{ p.hue }} 72% 63%), hsl({{ (p.hue + 34) % 360 }} 64% 47%));">
+    <span class="mono-badge">{{ p.monogram }}</span>
+    <span class="cat-tag">{{ p.category }}</span>
+</div>
+{% endmacro %}
+
+{% macro course_card(p) %}
+<a class="card" href="/products/{{ p.id }}"
+   data-track-click data-track-label="card" data-product-id="{{ p.id }}"
+   data-signal-title="{{ p.title }}" data-signal-category="{{ p.category }}">
+    {{ thumb(p) }}
+    <div class="card-body">
+        <span class="card-cat">{{ p.category }}</span>
+        <h3>{{ p.title }}</h3>
+        <p class="card-desc">{{ p.description[:96] }}{% if p.description|length > 96 %}…{% endif %}</p>
+        <div class="card-foot">
+            {% if p.rating %}
+            <span class="rating"><span class="star">★</span> {{ "%.1f"|format(p.rating) }}
+                {% if p.students %}· {{ "%.1fk"|format(p.students / 1000) if p.students >= 1000 else p.students }}{% endif %}
+            </span>
+            {% else %}<span></span>{% endif %}
+            <span class="price">${{ "%.0f"|format(p.price) }}</span>
+        </div>
+    </div>
+</a>
+{% endmacro %}
+
+{% macro signal_panel(seed_title=None, seed_category=None, recent=None) %}
+<div class="signal-panel" id="signal-panel"
+     data-seed-signals='{{ (recent or [])|tojson }}'
+     {% if seed_title %}data-seed-title="{{ seed_title }}" data-seed-category="{{ seed_category }}"{% endif %}>
+    <div class="signal-head">
+        <div class="signal-title">
+            <span class="signal-ico">〰</span>
+            <div>
+                <h3>Your Signal</h3>
+                <span class="sub">live · observed by agent</span>
+            </div>
+        </div>
+        <span class="streaming"><span class="dot"></span> streaming</span>
+    </div>
+    <div class="signal-feed" id="signal-feed">
+        <div class="signal-empty" id="signal-empty">Hover a course or search — chips appear here as the agent watches.</div>
+    </div>
+</div>
+{% endmacro %}

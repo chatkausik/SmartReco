@@ -53,7 +53,7 @@ def upsert_product(product: Product) -> None:
     if not product.is_active:
         delete_product(product.id)
         return
-    embedding = mesh_client.embed_text(product.embedding_text())
+    embedding = mesh_client.embed_text(product.embedding_text(), purpose="product embed (dual-write)")
     get_collection().upsert(
         ids=[str(product.id)],
         embeddings=[embedding],

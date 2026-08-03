@@ -1,12 +1,16 @@
 {% extends "base.html" %}
-{% block title %}Register — SmartReco{% endblock %}
+{% block title %}Create account — SmartReco{% endblock %}
 {% block content %}
-<h1>Register</h1>
-{% if error %}<p class="error">{{ error }}</p>{% endif %}
-<form method="post" action="/register" class="form">
-    <label>Email <input type="email" name="email" required autofocus></label>
-    <label>Password <input type="password" name="password" minlength="8" required></label>
-    <button type="submit">Create account</button>
-</form>
-<p>Already have an account? <a href="/login">Login</a></p>
+<div class="auth-wrap">
+    <div class="auth-card">
+        <h1 class="section-title">Create account</h1>
+        {% if error %}<p class="error">{{ error }}</p>{% endif %}
+        <form method="post" action="/register" class="form">
+            <label>Email <input type="email" name="email" required autofocus></label>
+            <label>Password <input type="password" name="password" minlength="8" required></label>
+            <button type="submit" class="btn btn-block">Create account</button>
+        </form>
+        <p class="muted small" style="margin-top:16px;">Already have an account? <a href="/login" style="color:var(--accent-2)">Sign in</a></p>
+    </div>
+</div>
 {% endblock %}
